@@ -1,0 +1,24 @@
+[Unit]
+Description=TCP Brutal rules for Sudoku clients
+Documentation=https://github.com/HyNetworks/tcp-brutal
+After=network-online.target sudoku.service
+Wants=network-online.target
+PartOf=sudoku.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/sudoku-brutal-helper --config /etc/sudoku-brutal-helper.json
+Restart=on-failure
+RestartSec=3s
+StateDirectory=sudoku-brutal-helper
+User=root
+CapabilityBoundingSet=CAP_NET_ADMIN
+AmbientCapabilities=CAP_NET_ADMIN
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=strict
+PrivateTmp=true
+ReadWritePaths=/var/lib/sudoku-brutal-helper
+
+[Install]
+WantedBy=multi-user.target

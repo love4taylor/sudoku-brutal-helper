@@ -1,0 +1,8 @@
+{
+  "sudoku_config": "/etc/sudoku/config.json",
+  "rate_mbps": 1000,
+  "max_ips": 20,
+  "poll_interval_ms": 200,
+  "state_file": "/var/lib/sudoku-brutal-helper/state.json",
+  "operation_timeout_seconds": 15
+}

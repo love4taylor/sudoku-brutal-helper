@@ -1,0 +1,30 @@
+# Rust build artifacts
+/target/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+config.local.json
+config.*.local.json
+
+# Runtime state and logs
+state.json
+*.state.json
+*.log
+*.pid
+*.sock
+
+# Coverage and profiling output
+/coverage/
+tarpaulin-report.html
+*.profraw
+*.profdata
+
+# Editor and operating-system files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

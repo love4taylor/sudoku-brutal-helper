@@ -100,7 +100,10 @@ fn parse_sudoku_port(contents: &str, path: &Path) -> Result<u16> {
         .as_deref()
         .is_some_and(|mode| mode.trim().eq_ignore_ascii_case("client"))
     {
-        bail!("{} is a client configuration; it cannot provide server inbound connections", path.display());
+        bail!(
+            "{} is a client configuration; it cannot provide server inbound connections",
+            path.display()
+        );
     }
     if config.transport.as_deref().is_some_and(|transport| {
         let transport = transport.trim();

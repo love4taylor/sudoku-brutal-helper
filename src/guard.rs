@@ -67,7 +67,10 @@ impl Guard {
         let document: StateDocument = serde_json::from_str(&contents)
             .with_context(|| format!("state file {} is invalid", self.state_path.display()))?;
         if document.version != 1 {
-            bail!("state file {} has an unsupported version", self.state_path.display());
+            bail!(
+                "state file {} has an unsupported version",
+                self.state_path.display()
+            );
         }
 
         let mut seen = HashSet::new();
@@ -92,11 +95,17 @@ impl Guard {
     pub fn reconcile(&mut self) -> Result<()> {
         for ip in self.stale_entries.drain(..) {
             if !self.runner.delete(ip)? {
-                bail!("failed to remove stale rule {} beyond max_ips", client_prefix(ip));
+                bail!(
+                    "failed to remove stale rule {} beyond max_ips",
+                    client_prefix(ip)
+                );
             }
         }
         for entry in &self.entries {
-            let ip = entry.ip.parse().context("state file contains an invalid IP")?;
+            let ip = entry
+                .ip
+                .parse()
+                .context("state file contains an invalid IP")?;
             self.runner.add(ip)?;
         }
         if self.state_dirty {
@@ -135,10 +144,16 @@ impl Guard {
         self.runner.add(ip)?;
         let mut evicted = None;
         if self.entries.len() >= self.max_ips {
-            let old_ip: IpAddr = self.entries[0].ip.parse().context("state file contains an invalid IP")?;
+            let old_ip: IpAddr = self.entries[0]
+                .ip
+                .parse()
+                .context("state file contains an invalid IP")?;
             if !self.runner.delete(old_ip)? {
                 let _ = self.runner.delete(ip);
-                bail!("failed to evict oldest client rule {}", client_prefix(old_ip));
+                bail!(
+                    "failed to evict oldest client rule {}",
+                    client_prefix(old_ip)
+                );
             }
             self.entries.remove(0);
             self.pending_disconnect.remove(&old_ip);
@@ -152,7 +167,10 @@ impl Guard {
             if let Some(old_ip) = evicted
                 && let Err(restore_error) = self.runner.add(old_ip)
             {
-                warn!("failed to roll back Brutal rule {}: {restore_error:#}", client_prefix(old_ip));
+                warn!(
+                    "failed to roll back Brutal rule {}: {restore_error:#}",
+                    client_prefix(old_ip)
+                );
             }
             return Err(error);
         }
@@ -217,12 +235,18 @@ impl Guard {
                 .create_new(true)
                 .mode(0o600)
                 .open(&temp_path)
-                .with_context(|| format!("failed to create temporary state file {}", temp_path.display()))?;
+                .with_context(|| {
+                    format!(
+                        "failed to create temporary state file {}",
+                        temp_path.display()
+                    )
+                })?;
             file.write_all(&document)?;
             file.write_all(b"\n")?;
             file.sync_all()?;
-            fs::rename(&temp_path, &self.state_path)
-                .with_context(|| format!("failed to replace state file {}", self.state_path.display()))?;
+            fs::rename(&temp_path, &self.state_path).with_context(|| {
+                format!("failed to replace state file {}", self.state_path.display())
+            })?;
             Ok(())
         })();
         if result.is_err() {
@@ -249,7 +273,11 @@ mod tests {
         guard.observe("192.0.2.2".parse().unwrap(), false).unwrap();
         guard.observe("192.0.2.1".parse().unwrap(), false).unwrap();
         guard.observe("192.0.2.3".parse().unwrap(), false).unwrap();
-        let addresses: Vec<&str> = guard.entries.iter().map(|entry| entry.ip.as_str()).collect();
+        let addresses: Vec<&str> = guard
+            .entries
+            .iter()
+            .map(|entry| entry.ip.as_str())
+            .collect();
         assert_eq!(addresses, ["192.0.2.1", "192.0.2.3"]);
     }
 }

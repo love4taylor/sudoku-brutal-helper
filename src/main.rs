@@ -24,7 +24,10 @@ use std::time::{Duration, Instant};
 struct Args {
     #[arg(long, default_value = DEFAULT_CONFIG_PATH)]
     config: PathBuf,
-    #[arg(long, help = "Print mutations without applying them; sock_diag scans still run")]
+    #[arg(
+        long,
+        help = "Print mutations without applying them; sock_diag scans still run"
+    )]
     dry_run: bool,
     #[arg(long, help = "Exit after one connection scan")]
     once: bool,
@@ -63,9 +66,7 @@ fn main() -> Result<()> {
             Ok(clients) => {
                 let current_clients: HashSet<_> = clients.iter().copied().collect();
                 for ip in clients {
-                    if initial_scan
-                        || !previous_clients.contains(&ip)
-                        || guard.needs_attention(ip)
+                    if initial_scan || !previous_clients.contains(&ip) || guard.needs_attention(ip)
                     {
                         if let Err(error) = guard.observe(ip, initial_scan) {
                             error!("failed to process client {ip}: {error:#}");
@@ -85,10 +86,7 @@ fn main() -> Result<()> {
                 }
             }
         }
-        sleep_until_next_scan(
-            Duration::from_millis(settings.poll_interval_ms),
-            &stop,
-        );
+        sleep_until_next_scan(Duration::from_millis(settings.poll_interval_ms), &stop);
     }
     info!("monitoring stopped");
     Ok(())
